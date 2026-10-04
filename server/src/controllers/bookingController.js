@@ -34,8 +34,17 @@ export const createBooking = asyncHandler(async (req, res) => {
     throw new Error('You cannot book your own listing');
   }
 
-  // BUG: there is no check for overlapping bookings, so the same
-  // dates can be booked twice. See "Prevent double booking" issue.
+  const overlap = await Booking.findOne({
+    listing: listing._id,
+    status: { $ne: 'cancelled' },
+    checkIn: { $lt: end },
+    checkOut: { $gt: start },
+  });
+
+  if (overlap) {
+    res.status(400);
+    throw new Error('These dates are already booked for this listing');
+  }
 
   const booking = await Booking.create({
     listing: listing._id,
