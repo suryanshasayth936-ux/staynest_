@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import api, { getErrorMessage } from '../api/client.js';
-import Loader from '../components/Loader.jsx';
+import SkeletonLoader from '../components/SkeletonLoader.jsx';
 import { formatDate, formatINR } from '../utils/format.js';
 
 export default function Trips() {
@@ -29,7 +29,14 @@ export default function Trips() {
     }
   };
 
-  if (!bookings && !error) return <Loader />;
+  if (!bookings && !error) {
+    return (
+      <section>
+        <h1>My Trips</h1>
+        <SkeletonLoader type="trip" count={3} />
+      </section>
+    );
+  }
 
   return (
     <section>
