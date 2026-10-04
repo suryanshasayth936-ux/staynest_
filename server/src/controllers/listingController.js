@@ -3,13 +3,16 @@ import Review from '../models/Review.js';
 import Booking from '../models/Booking.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
+const escapeRegex = (text) => text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+
 // GET /api/listings?city=&type=&minPrice=&maxPrice=&guests=
 // NOTE: no pagination yet, and checkIn/checkOut availability filter is not implemented.
 export const getListings = asyncHandler(async (req, res) => {
   const { city, type, minPrice, maxPrice, guests } = req.query;
   const filter = { isActive: true };
 
-  if (city) filter.city = new RegExp(`^${city}`, 'i');
+  const searchQuery = city || req.query.q || req.query.search;
+  if (searchQuery) filter.city = new RegExp(`^${escapeRegex(searchQuery)}`, 'i');
   if (type) filter.type = type;
   if (guests) filter.maxGuests = { $gte: Number(guests) };
   if (minPrice || maxPrice) {
